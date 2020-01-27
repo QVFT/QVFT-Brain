@@ -18,4 +18,5 @@ Make sure Python3 is installed. Check using:
         pip install -r requirements.txt  
 
 3.  Start the server:
+
         python app.py
