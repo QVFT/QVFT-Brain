@@ -18,7 +18,7 @@ class target_cycle(db.Model):
     value = db.Column(db.Integer())
     time_of_day = db.Column(db.DateTime())
     env_var_id  = db.Column(db.String(),db.ForeignKey("env_var.label"))
-    user_id =  db.Column(db.String(),db.ForeignKey("user.user_id"))
+    user_id =  db.Column(db.Integer(),db.ForeignKey("user.user_id"))
     env_var = db.relationship('env_var', backref='readings')
     user = db.relationship('user', backref='target_cycle')
 
