@@ -1,33 +1,53 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from datetime import datetime, timezone
+
 
 app = Flask(__name__)
 
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI']='postgres://vpqfujcg:dsQ1MyhV-Yux8uDp4WH7CKJQHKBaOLVv@drona.db.elephantsql.com:5432/vpqfujcg'
+app.config['SQLALCHEMY_DATABASE_URI']='postgres://jlitqmyw:eF1Ju2K3hX9jw-O9iG_NsiHSrSFf3EIb@drona.db.elephantsql.com:5432/jlitqmyw'
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
-import models
+from models import *
+def serialize(obj):
+    result = {c.key: getattr(obj, c.key)
+              for c in db.inspect(obj).mapper.column_attrs}
+    # result.pop("password", None)  # remove password if exists
+    # for key in result:  # convert enums to strings
+    #     if isinstance(result[key], enum.Enum):
+    #         result[key] = str(result[key]).split('.')[-1]
+    return result
 
 @app.route('/')
 def hello():
-    return "Hello World!"
+    x=models.readings.query.all()
+    return f"Hello World! + {x}"
 
 @app.route("/api/readings/<label>", methods=['POST'])
-def readings(label):
+def post_readings(label):
     print (request.is_json)
     content = request.get_json()
     print (content)
-    return 'JSON posted'
-    add_reading = models.readings(var_val=content['var_val'], env_var_id=content['env_var_id'], shelf_id=content['shelf_id'], sensor_id=content['sensor_id'], arduino_id=content['arduino_id'])
+    print('JSON posted')
+    add_reading = readings(var_val=content['var_val'], env_var_id=content['env_var_id'], shelf_id=content['shelf_id'], sensor_id=content['sensor_id'], arduino_id=content['arduino_id'])
     db.session.add(add_reading)
     db.session.commit()
-    print(models.readings.query.all())
+    print(readings.query.all())
+    return "reading posted!"
 
+@app.route("/api/readings/<label>", methods=['GET'])
+def get_readings(label):
+    start_time = datetime.fromtimestamp(int(request.args.get('start_time')),timezone.utc)
+    end_time = datetime.fromtimestamp(int(request.args.get('end_time')),timezone.utc)
+    # qry = DBSession.query(User).filter(User.birthday.between('1985-01-17', '1988-01-17'))
+    data = db.session.query(readings).filter(readings.time.between(start_time, end_time)).all()
+    print(data)
+    return jsonify([serialize(reading) for reading in data])
 
 if __name__ == '__main__':
     app.run(host="127.0.0.1", port='8080',debug=True)
