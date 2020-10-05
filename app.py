@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from datetime import datetime, timezone
@@ -13,6 +13,7 @@ db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
 
+import models #change in python syntax
 from models import *
 def serialize(obj):
     result = {c.key: getattr(obj, c.key)
@@ -28,6 +29,28 @@ def hello():
     x=models.readings.query.all()
     return f"Hello World! + {x}"
 
+@app.route('/add')
+def add():
+    return render_template('input.html')
+
+
+@app.route('/add',methods=['POST'])
+def readingadd():
+    var_val = request.form.get('var_val')
+    env_var_id = request.form.get('env_var_id')
+    shelf_id = request.form.get('shelf_id')
+    sensor_id = request.form.get('sensor_id')
+    arduino_id = request.form.get('arduino_id')
+    add_reading =readings(var_val=var_val, env_var_id=env_var_id, shelf_id=shelf_id, sensor_id=sensor_id, arduino_id=arduino_id)
+    db.session.add(add_reading)
+    db.session.commit()
+    print(readings.query.all())
+    return "reading posted!"
+
+@app.route('/view')
+def readings_list():
+    readings = db.session.execute("SELECT * FROM readings ORDER BY id")
+    return render_template('reading_output.html', readings=readings)
 @app.route("/api/readings/<label>", methods=['POST'])
 def post_readings(label):
     print (request.is_json)
