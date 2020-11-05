@@ -36,16 +36,39 @@ def add():
 
 @app.route('/add',methods=['POST'])
 def readingadd():
+    db.session.flush()
     var_val = request.form.get('var_val')
     env_var_id = request.form.get('env_var_id')
     shelf_id = request.form.get('shelf_id')
     sensor_id = request.form.get('sensor_id')
     arduino_id = request.form.get('arduino_id')
     add_reading =readings(var_val=var_val, env_var_id=env_var_id, shelf_id=shelf_id, sensor_id=sensor_id, arduino_id=arduino_id)
+    print(add_reading)
     db.session.add(add_reading)
     db.session.commit()
     print(readings.query.all())
-    return "reading posted!"
+    return "xd"
+
+@app.route('/gucci')
+def xd():
+    return xd
+
+
+@app.route('/gucci/<label>')
+def see_reading(label):
+    xd = label.split(",")
+    var_val = xd[0]
+    env_var_id = xd[1]
+    shelf_id = xd[2]
+    sensor_id = xd[3]
+    arduino_id = xd[4]
+    add_reading =readings(var_val=var_val, env_var_id=env_var_id, shelf_id=shelf_id, sensor_id=sensor_id, arduino_id=arduino_id)
+    print(add_reading)
+    db.session.add(add_reading)
+    db.session.commit()
+    print(readings.query.all())
+    return "xd"
+    return str(xd)
 
 @app.route('/view')
 def readings_list():
@@ -73,4 +96,5 @@ def get_readings(label):
     return jsonify([serialize(reading) for reading in data])
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port='8080',debug=True)
+    #app.run(host="127.0.0.1", port='8080',debug=True)
+    app.run(host="0.0.0.0", port="80", debug=True)
