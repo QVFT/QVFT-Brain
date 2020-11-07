@@ -25,9 +25,8 @@ def serialize(obj):
     return result
 
 @app.route('/')
-def hello():
-    x=models.readings.query.all()
-    return f"Hello World! + {x}"
+def home():
+    return render_template('input.html')
 
 @app.route('/add')
 def add():
