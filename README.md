@@ -1,3 +1,7 @@
+## Emoji Policy
+
+https://greena13.github.io/blog/2016/08/19/emojis-are-the-solution-to-useless-commit-messages/
+
 ## Installation
 ### Clone
 
